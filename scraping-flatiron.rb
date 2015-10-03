@@ -51,35 +51,37 @@ def add_links_to_hash(student_hash, doc)
   student_hash
 end
 
-def populate_hash_with_profile(student_hash, doc, attribute, selectors)  
-  #open the link for each student and grab selected element 
+def scrape_and_store_each_profile(doc)
+  doc_hash = {}
   students_with_links = students_links(doc)
-  students_with_links.each do |name, link|
+  students_with_links.map do |name, link|
     profile_html = open(link)
     profile_doc = Nokogiri::HTML(profile_html)
-    value = profile_doc.search(selectors).text
+    doc_hash[name] = profile_doc
+  end
+  doc_hash
+end
+
+def populate_hash_with_profile(student_hash, html_hash, attribute, selectors)  
+  #open the link for each student and grab selected element 
+  html_hash.each do |name, html|
+    value = html.search(selectors).text
     student_hash[name][attribute] = value
   end  
   student_hash
 end
 
-def populate_hash_with_bio(student_hash, doc)
-  students_with_links = students_links(doc)
-  students_with_links.each do |name, link|
-    profile_html = open(link)
-    profile_doc = Nokogiri::HTML(profile_html)
-    value = profile_doc.search('.services p').first.text
+def populate_hash_with_bio(student_hash, html_hash)
+  html_hash.each do |name, html|
+    value = html.search('.services p').first.text
     student_hash[name][:bio] = value
   end  
   student_hash
 end
 
-def populate_hash_with_social(student_hash, doc, network, index)
-  students_with_links = students_links(doc)
-  students_with_links.each do |name, link|
-    profile_html = open(link)
-    profile_doc = Nokogiri::HTML(profile_html)
-    value = profile_doc.search('.social-icons a')[index].attr('href')
+def populate_hash_with_social(student_hash, html_hash, network, index)
+  html_hash.each do |name, html|
+    value = html.search('.social-icons a')[index].attr('href')
     student_hash[name][network] = value
   end  
   student_hash
@@ -87,12 +89,13 @@ end
 
 def fill_student_hash(doc)
   students = create_student_hash(doc)
-  add_links_to_hash(students, doc)   #tagline
-  populate_hash_with_profile(students, doc, :tagline, '.textwidget h3')
-  populate_hash_with_bio(students, doc)   #github
-  populate_hash_with_social(students, doc, :github, 2)   #twitter
-  populate_hash_with_social(students, doc, :twitter, 0)   #linkedin
-  populate_hash_with_social(students, doc, :linkedin, 1)   # end
+  add_links_to_hash(students, doc)   
+  html_hash = scrape_and_store_each_profile(doc)
+  populate_hash_with_profile(students, html_hash, :tagline, '.textwidget h3') #tagline
+  populate_hash_with_bio(students, html_hash)   #bio
+  populate_hash_with_social(students, html_hash, :github, 2)   #github
+  populate_hash_with_social(students, html_hash, :twitter, 0)   #twitter
+  populate_hash_with_social(students, html_hash, :linkedin, 1)   # linkedin
 end
 
 
