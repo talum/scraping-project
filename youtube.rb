@@ -6,7 +6,7 @@ puts "What song would you like to play?"
 ​
 song_name = gets.chomp
 ​
-document = open("https://www.youtube.com/results?search_query=#{song_name}").read
+document = open("https://www.youtube.com/results?search_query=#{song_name}")
 ​
 noko_document = Nokogiri::HTML(document)
 ​
