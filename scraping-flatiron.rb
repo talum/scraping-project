@@ -3,30 +3,29 @@ require 'open-uri'
 require 'pry'
 
 html = open("https://learn-co-students.github.io/deploy-on-day-1-web-0915/")
-doc = Nokogiri::HTML(html)
+DOC = Nokogiri::HTML(html)
 
-def all_students(doc)
+def all_students
    #searches the scraped info from page for student names
-  all_names_with_links = doc.search('.big-comment h3 a')
+  all_names_with_links = DOC.search('.big-comment h3 a')
   all_students_names = all_names_with_links.map do |element|
       element.text
     end
 end
 
-def create_student_hash(doc)
-#creates basic structure with student names as keys 
-  all_students = all_students(doc)
+def create_student_hash
+ #creates basic structure with student names as keys 
  #create a new hash with all the students names as keys, values are empty hash
   all_students.each_with_object({}) do |student_name, hash|
       hash[student_name] = {}
   end
 end  
 
-def students_links(doc)
+def students_links
   #Create hash for just the students and links, plus make exceptions
   #i.e. {"student_name" => "http://...", "student_name" => "http://"}
   new_hash = {}
-  links = doc.search('.big-comment h3 a')
+  links = DOC.search('.big-comment h3 a')
   links.each do |element|
       link_path = element.attr('href')
       new_hash[element.text] = "https://learn-co-students.github.io/deploy-on-day-1-web-0915/#{link_path}"
@@ -42,17 +41,17 @@ def students_links(doc)
   new_hash
 end
 
-def add_links_to_hash(student_hash, doc)  
+def add_links_to_hash(student_hash)  
   #put the link for each student into the student hash 
-  students_with_links = students_links(doc)
+  students_with_links = students_links
   students_with_links.each do |name, link|
     student_hash[name][:link] = link
   end  
   student_hash
 end
 
-def populate_hash(student_hash, doc)
-  students_with_links = students_links(doc)
+def populate_hash(student_hash)
+  students_with_links = students_links
   students_with_links.map do |name, link|
     profile_html = open(link)
     profile_doc = Nokogiri::HTML(profile_html)
@@ -90,10 +89,10 @@ end
 #   student_hash
 # end
 
-def fill_student_hash(doc)
-  students = create_student_hash(doc)
-  add_links_to_hash(students, doc)   
-  populate_hash(students, doc)
+def fill_student_hash
+  students = create_student_hash
+  add_links_to_hash(students)   
+  populate_hash(students)
   #html_hash = scrape_and_store_each_profile(doc)
   #populate_hash_with_profile(students, html_hash, :tagline, '.textwidget h3') #tagline
   #populate_hash_with_bio(students, html_hash)   #bio
@@ -149,7 +148,7 @@ def call_student_attributes(students, name)
     end
 end
 
-students = fill_student_hash(doc) 
+students = fill_student_hash
 puts "Welcome to the Flatiron School Web 0915."
 
 exit = false
