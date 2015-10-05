@@ -103,25 +103,33 @@ end
 
 def display_student_info(students)
 #make sure that the hash has key. 
-  puts "Enter a student's name to learn more about him or her."
-  name = gets.chomp
-  if students.has_key?(name)
-    puts "Cool. You can view their tagline and bio, visit their profile on Flatiron School or see
-    them on github, twitter, or linkedin. Type switch to enter another student's name."
-    call_student_attributes(students, name)
-  elsif name == back
-    ##escape the loop? 
-  elsif name == exit
-    exit = true
-  else
-    puts "Sorry, don't recognize that name"  
-  end  
+  quit = false
+  until quit
+    puts "Enter a student's name to learn more about him or her. Back to return to main menu."
+    name = gets.chomp
+    if students.has_key?(name)
+      puts "Great. #{name} is awesome.
+      Use these commmands: bio, tagline.
+      Or visit them online by typing: profile, github, twitter, or linkedin.
+      Type back to enter another student's name.
+      Type exit to exit."
+      call_student_attributes(students, name)
+    elsif name == "back"
+      ##escape the loop? 
+      quit = true
+    # elsif name == "exit"
+    #   exit = true
+    #   quit = true
+    else
+      puts "Sorry, don't recognize that name. Please check your spelling and try again."  
+    end  
+  end
 end
 
 def call_student_attributes(students, name)
-  quit = false
-  until quit
-    puts "Enter a command. Tagline, bio, profile, github, twitter, or linkedin. Back to return. Exit to exit"
+  back = false
+  until back
+    puts "You are currently viewing #{name}'s information.' Type tagline, bio, profile, github, twitter, or linkedin. Back to return."
     command = gets.chomp.downcase
     case command
       when "tagline"
@@ -142,8 +150,13 @@ def call_student_attributes(students, name)
         system ("open #{link}")
       when "back"
         ##escape the loop, ideally to prompt for another student's name.
-      when "exit"
-        quit = true
+        back = true
+      # when "exit"
+      #   exit = true
+      #   quit = true
+      #   back = true
+      else
+        puts "Sorry, don't recognize that command. Try again."
       end
     end
 end
@@ -152,19 +165,21 @@ students = fill_student_hash
 puts "Welcome to the Flatiron School Web 0915."
 
 exit = false
-puts "Learn more about our students. Type help for a list of commands."
+puts "Learn more about our students."
 until exit
-  puts "Please enter a command."
+  puts "Please enter a command. Type help to see a list of commands."
   navigate = gets.chomp.downcase
   case navigate
     when "help"
-      puts "Here are your options. Type students to see a list of students. Or type info to learn more about each student."
+      puts "Here are your options. Type students to see a list of students. Or type info to learn more about each student. Exit to exit."
     when "students"
       puts students.keys
     when "info"
       display_student_info(students)
     when "exit"
       exit = true
+    else
+      puts "Sorry, don't recognize that command. Type help to see a full list."
   end
 end
 
